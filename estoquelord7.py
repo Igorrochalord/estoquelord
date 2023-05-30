@@ -4,6 +4,11 @@
 import cv2
 from pyzbar import pyzbar
 from time import sleep
+import requests
+import pandas as pd
+from io import StringIO
+chave='Q19ZZQITJ9S2OG5M'
+
 
 estoque = {}
 contatos = [
@@ -109,16 +114,119 @@ def exibir_estoque():
     for nome, produto in estoque.items():
         print(f"Nome: {nome}, Descrição: {produto['descricao']}, Preço: {produto['preco']}, Quantidade: {produto['quantidade']}")
 
-
+def exibir_acoes():
+#TODAS AS INFORMAÇOES ESTAO SENDO PEGAS DIRETO DO BANCO DE DADOS AO VIVO DO BANCO CENTRAL PELA API
+   print("deseja ver as açoes de quais produtos ?")
+   sleep(0.3)
+   print("[com o valor das açoes e ativos dos produtos pode ajudar voce a fazer um preço que nao lhe prejudique no mercado")
+   sleep(0.5)
+   print("JBSS3 ==> CARNE BOVINA /DERIVADOS DE FRANGO E PORCO/ DIGITE: [0] ")
+   print("CAMIL3==> ARROZ /ALIMENTOS PROCESSADOS NO GERAL/ DIGITE: [1]")
+   print("MDIA3==>DERIVADOS DO AGRONEGOCIO/TRIGO/ DIGITE: [2]")
+   print("AMBEV3==> BEBIDAS GERAL/ DIGITE: [3]")
+   print("deseja consultar alguma empresa gringa ou brasileira para saber o valor de mercado ?[4]")
+   escolhas=int(input("quais açoes deseja ver: "))
+   if escolhas==0:
+        #INICIO DO SEMANAL
+        print("resultados do mercado semanal")
+        url = f'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY_ADJUSTED&symbol=JBSS3.SA&apikey={chave}&datatype=csv'
+        r = requests.get(url)
+        tabela = pd.read_csv(StringIO(r.text))
+        print(tabela.head(4))
+        #FIM DO SEMANAL
+        #AQUI VOCE VAI PODER VER A ALTERAÇAO O PREÇO NOS PRODUTOS NO CASO AQUI E DO JBSS3 RESPONSALVE PELA CARNE BRASIL
+        acoes = ['JBSS3']
+        compilada = pd.DataFrame()
+        print("alteraçao de valor e preço baseado no mercado")
+        sleep(0.6)
+        for acao in acoes:
+            url = f'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={acao}.SA&apikey={chave}&datatype=csv'
+            r = requests.get(url)
+            tabela = pd.read_csv(StringIO(r.text))
+            lista_tabelas = [compilada, tabela]
+            compilada = pd.concat(lista_tabelas)
+            print(compilada)
+   if escolhas==1:
+        #INICIO DO SEMANAL
+        print("resultados do mercado semanal")
+        url = f'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY_ADJUSTED&symbol=CAML3.SA&apikey={chave}&datatype=csv'
+        r = requests.get(url)
+        tabela = pd.read_csv(StringIO(r.text))
+        print(tabela.head(4))
+        #FIM DO SEMANAL
+        #AQUI VOCE VAI PODER VER A ALTERAÇAO O PREÇO NOS PRODUTOS NO CASO AQUI E DO JBSS3 RESPONSALVE PELA CARNE BRASIL
+        acoes = ['CAML3.SA']
+        compilada = pd.DataFrame()
+        print("alteraçao de valor e preço baseado no mercado")
+        sleep(0.6)
+        for acao in acoes:
+            url = f'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={acao}.SA&apikey={chave}&datatype=csv'
+            r = requests.get(url)
+            tabela = pd.read_csv(StringIO(r.text))
+            lista_tabelas = [compilada, tabela]
+            compilada = pd.concat(lista_tabelas)
+            print(compilada)
+       
+   if escolhas==2:
+        print("resultados do mercado semanal")
+        url = f'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY_ADJUSTED&symbol=MDIA3.SA&apikey={chave}&datatype=csv'
+        r = requests.get(url)
+        tabela = pd.read_csv(StringIO(r.text))
+        print(tabela.head(4))
+        #FIM DO SEMANAL
+        #AQUI VOCE VAI PODER VER A ALTERAÇAO O PREÇO NOS PRODUTOS NO CASO AQUI E DO JBSS3 RESPONSALVE PELA CARNE BRASIL
+        acoes = ['MDIA3.SA']
+        compilada = pd.DataFrame()
+        print("alteraçao de valor e preço baseado no mercado")
+        sleep(0.6)
+        for acao in acoes:
+            url = f'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={acao}.SA&apikey={chave}&datatype=csv'
+            r = requests.get(url)
+            tabela = pd.read_csv(StringIO(r.text))
+            lista_tabelas = [compilada, tabela]
+            compilada = pd.concat(lista_tabelas)
+            print(compilada)
+   if escolhas==3:
+        print("resultados do mercado semanal")
+        url = f'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY_ADJUSTED&symbol=AMBEV3.SA&apikey={chave}&datatype=csv'
+        r = requests.get(url)
+        tabela = pd.read_csv(StringIO(r.text))
+        print(tabela.head(4))
+        #FIM DO SEMANAL
+        #AQUI VOCE VAI PODER VER A ALTERAÇAO O PREÇO NOS PRODUTOS NO CASO AQUI E DO JBSS3 RESPONSALVE PELA CARNE BRASIL
+        acoes = ['AMBEV3.SA']
+        compilada = pd.DataFrame()
+        print("alteraçao de valor e preço baseado no mercado")
+        sleep(0.6)
+        for acao in acoes:
+            url = f'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={acao}.SA&apikey={chave}&datatype=csv'
+            r = requests.get(url)
+            tabela = pd.read_csv(StringIO(r.text))
+            lista_tabelas = [compilada, tabela]
+            compilada = pd.concat(lista_tabelas)
+            print(compilada)
+        
+      
+               
 def exibir_menu():
     print("Bem-vindo ao sistema de gerenciamento de estoque")
+    sleep(0.4)
     print("Selecione uma opção:")
+    sleep(0.4)
     print("1 - Adicionar produto")
+    sleep(0.4)
     print("2 - Remover produto")
+    sleep(0.4)
     print("3 - Fazer pedido")
+    sleep(0.4)
     print("4 - Digitalizar produto")
+    sleep(0.4)
     print("5 - Exibir estoque")
-    print("6 - Sair")
+    sleep(0.4)
+    print("6- Exibir informações de açoes ")
+    sleep(0.4)
+    print("7 - Sair")
+    sleep(0.4)
     opcao = int(input("Opção: "))
     return opcao
 
@@ -137,6 +245,8 @@ def main():
         elif opcao == 5:
             exibir_estoque()
         elif opcao == 6:
+            exibir_acoes()
+        elif opcao == 7:
             break
         else:
             print("Opção inválida")
