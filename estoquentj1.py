@@ -1,5 +1,6 @@
 import cv2
 import tkinter as tk
+from pyzbar import pyzbar
 from tkinter import messagebox, simpledialog, ttk
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
@@ -158,31 +159,31 @@ class SistemaEstoque:
             messagebox.showwarning("Alerta", "Estoque baixo! Nível crítico.")
 
     def digitalizar_produto(self):
+        cap = cv2.VideoCapture(0)
         try:
-            cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-            if not cap.isOpened():
-                messagebox.showerror("Erro", "Não foi possível acessar a câmera")
-                return
-                
             while True:
-                ret, frame = cap.read()
-                if not ret:
-                    break
-                    
-                frame = cv2.resize(frame, (640, 480))
+                _, frame = cap.read()
+                decoded_objects = pyzbar.decode(frame)
+                for obj in decoded_objects:
+                    nome = obj.data.decode('utf-8')
+                    produto = self.collection.find_one({"nome": nome})
+                    if produto:
+                        messagebox.showinfo("Produto Encontrado", f"O produto {nome} está em estoque com quantidade de {produto['quantidade']}")
+                    else:
+                        resposta = messagebox.askyesno("Produto Não Encontrado", "Produto não encontrado no estoque. Deseja adicionar este produto?")
+                        if resposta:
+                            descricao = simpledialog.askstring("Adicionar Produto", "Digite a descrição do produto:")
+                            preco = simpledialog.askfloat("Adicionar Produto", "Digite o preço do produto:")
+                            quantidade = simpledialog.askinteger("Adicionar Produto", "Digite a quantidade do produto:")
+                            produto = {"nome": nome, "descricao": descricao, "preco": preco, "quantidade": quantidade}
+                            self.collection.insert_one(produto)
+                            messagebox.showinfo("Sucesso", "Produto adicionado ao estoque com sucesso!")
+                    # Fechar a janela de digitalização após processar o código de barras
+                    cap.release()
+                    cv2.destroyAllWindows()
+                    return  # Sair da função após processar o código de barras
                 
-                # Usando o detector de códigos do OpenCV
-                ret_barcode, decoded_info, _, _ = self.detector.detectAndDecode(frame)
-                
-                if ret_barcode:
-                    for code in decoded_info:
-                        if code:  # Se um código válido foi detectado
-                            cap.release()
-                            cv2.destroyAllWindows()
-                            self.processar_codigo(code)
-                            return
-                
-                cv2.imshow('Scanner de Código de Barras (Pressione Q para sair)', frame)
+                cv2.imshow("Digitalizar Produto", frame)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
                     
