@@ -1,16 +1,17 @@
 import cv2
-from pyzbar import pyzbar
 import tkinter as tk
 from tkinter import messagebox, simpledialog, ttk
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 import sys
+import numpy as np
 
 class SistemaEstoque:
     def __init__(self):
         self.client = None
         self.db = None
         self.collection = None
+        self.detector = cv2.barcode_BarcodeDetector()  # Detector de códigos do OpenCV
         self.conectar_mongodb()
         
     def conectar_mongodb(self):
@@ -170,21 +171,23 @@ class SistemaEstoque:
                     
                 frame = cv2.resize(frame, (640, 480))
                 
-                try:
-                    codes = pyzbar.decode(frame)
-                    if codes:
-                        code = codes[0].data.decode('utf-8')
-                        cap.release()
-                        cv2.destroyAllWindows()
-                        self.processar_codigo(code)
-                        return
-                except Exception as e:
-                    print(f"Erro ao decodificar: {str(e)}")
+                # Usando o detector de códigos do OpenCV
+                ret_barcode, decoded_info, _, _ = self.detector.detectAndDecode(frame)
+                
+                if ret_barcode:
+                    for code in decoded_info:
+                        if code:  # Se um código válido foi detectado
+                            cap.release()
+                            cv2.destroyAllWindows()
+                            self.processar_codigo(code)
+                            return
                 
                 cv2.imshow('Scanner de Código de Barras (Pressione Q para sair)', frame)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
                     
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro na câmera: {str(e)}")
         finally:
             cap.release()
             cv2.destroyAllWindows()
@@ -258,8 +261,8 @@ class SistemaEstoque:
         ttk.Button(
             button_frame,
             text="Fazer Pedido",
-            command=lambda: self.fazer_pedido(tree.item(tree.selection())['values'][0] if tree.selection() else None
-        ).pack(side=tk.LEFT, padx=5))
+            command=lambda: self.fazer_pedido(tree.item(tree.selection())['values'][0] if tree.selection() else None)
+        ).pack(side=tk.LEFT, padx=5)
         
         ttk.Button(
             button_frame,
