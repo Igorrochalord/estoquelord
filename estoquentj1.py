@@ -49,18 +49,18 @@ class SistemaEstoque:
             except ValueError:
                 messagebox.showerror("Erro", "Por favor, digite um número inteiro válido.")
 
-    def adicionar_produto(self):
-        nome = simpledialog.askstring("Adicionar Produto", "Digite o nome do produto:")
+    def adicionar_produto(self, nome=None):
+        nome = nome or simpledialog.askstring("Adicionar Produto", "Digite o nome do produto:")
         if not nome:
             return
-            
+        
         descricao = simpledialog.askstring("Adicionar Produto", "Digite a descrição do produto:")
         preco = self.validar_float("Adicionar Produto", "Digite o preço do produto:")
         quantidade = self.validar_int("Adicionar Produto", "Digite a quantidade do produto:")
-        
+    
         if None in [descricao, preco, quantidade]:
             return
-            
+        
         produto = {
             "nome": nome,
             "descricao": descricao,
@@ -69,7 +69,7 @@ class SistemaEstoque:
         }
         self.collection.insert_one(produto)
         messagebox.showinfo("Sucesso", "Produto adicionado ao estoque com sucesso!")
-        
+    
         if quantidade <= 6:
             messagebox.showwarning("Alerta", "Estoque baixo! Nível crítico.")
 
@@ -85,8 +85,8 @@ class SistemaEstoque:
         else:
             messagebox.showerror("Erro", "Produto não encontrado no estoque")
 
-    def modificar_produto(self):
-        nome = simpledialog.askstring("Modificar Produto", "Digite o nome do produto:")
+    def modificar_produto(self, nome=None):
+        nome = nome or simpledialog.askstring("Modificar Produto", "Digite o nome do produto:")
         if not nome:
             return
             
@@ -258,8 +258,8 @@ class SistemaEstoque:
         ttk.Button(
             button_frame,
             text="Fazer Pedido",
-            command=lambda: self.fazer_pedido(tree.item(tree.selection())['values'][0] if tree.selection() else None)
-        ).pack(side=tk.LEFT, padx=5)
+            command=lambda: self.fazer_pedido(tree.item(tree.selection())['values'][0] if tree.selection() else None
+        ).pack(side=tk.LEFT, padx=5))
         
         ttk.Button(
             button_frame,
@@ -279,7 +279,7 @@ class SistemaEstoque:
         main_frame.pack(fill=tk.BOTH, expand=True)
         
         botoes = [
-            ("➕ Adicionar Produto", self.adicionar_produto),
+            ("➕ Adicionar Produto", lambda: self.adicionar_produto()),
             ("✖️ Remover Produto", self.remover_produto),
             ("✏️ Modificar Produto", self.modificar_produto),
             ("📷 Digitalizar Código", self.digitalizar_produto),
